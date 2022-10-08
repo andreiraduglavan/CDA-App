@@ -1,20 +1,87 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { createStackNavigator } from '@react-navigation/stack'
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native'
+import { useFonts } from 'expo-font'
+import { useState, useCallback } from 'react'
+import { onAuthStateChanged } from 'firebase/auth'
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+import { StateContext } from './context/StateContext'
+import { Home, CommentSection, Details, Landing, Profile, DM, Conversation, AddPost, Settings, ChangePersonalInf, SearchScreen, SignUpScreen, EventsFeed } from './screens'
+import { COLORS } from './constants'
+import { auth } from './firebase/firebaseApp'
+import * as SplashScreen from 'expo-splash-screen'
+
+SplashScreen.preventAutoHideAsync()
+
+const Stack = createStackNavigator()
+
+const theme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: COLORS.white
+  }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+const App = () => {
+  const [loaded] = useFonts({
+    RobotoNormal:'./assets/fonts/Roboto-Regular.ttf',
+  })
+
+  const [isSignedIn, setisSignedIn] = useState(true)
+  const [appIsReady, setAppIsReady] = useState(false)
+  
+  onAuthStateChanged(auth, user => {
+    if (user != null) {
+      setisSignedIn(true);
+      setAppIsReady(true)
+
+    }
+    else { setisSignedIn(false); setAppIsReady(true) }
+  })
+
+  const onLayoutRootView = useCallback(async () => {
+    if (appIsReady) {
+      // This tells the splash screen to hide immediately! If we call this after
+      // `setAppIsReady`, then we may see a blank screen while the app is
+      // loading its initial state and rendering its first pixels. So instead,
+      // we hide the splash screen once we know the root view has already
+      // performed layout.
+      await SplashScreen.hideAsync();
+    }
+  }, [appIsReady]);
+  
+  if (!appIsReady) {
+    return null
+  }
+
+  return (
+    <StateContext>
+        <NavigationContainer theme={theme} onReady={onLayoutRootView}>
+          <Stack.Navigator> 
+            { isSignedIn ? 
+                <>
+                  <Stack.Screen name='Home' component={Home} options={{headerShown: false}}/>
+                  <Stack.Screen name='Details' component={Details} options={{headerShown: false}}/>
+                  <Stack.Screen name='CommentSection' component={CommentSection} options={{headerShown: false}}/>
+                  <Stack.Screen name='Profile' component={Profile} options={{headerShown: false}}/>
+                  <Stack.Screen name='DM' component={DM} options={{headerShown: false}}/>
+                  <Stack.Screen name='Conversation' component={Conversation} options={{headerShown: false}}/>
+                  <Stack.Screen name='AddPost' component={AddPost} options={{headerShown: false}}/>
+                  <Stack.Screen name='Settings' component={Settings} options={{headerShown: false}}/>
+                  <Stack.Screen name='ChangePersonalInf' component={ChangePersonalInf} options={{headerShown: false}}/>
+                  <Stack.Screen name='SearchScreen' component={SearchScreen} options={{headerShown: false}}/>
+                  <Stack.Screen name='EventsFeed' component={EventsFeed} options={{headerShown: false}}/>
+                </>
+              : 
+                <>
+                  <Stack.Screen name='Landing' component={Landing} options={{headerShown: false}}/>
+                  <Stack.Screen name='SignUpScreen' component={SignUpScreen} options={{headerShown: false}}/>
+                </>            
+            }        
+          </Stack.Navigator>
+        </NavigationContainer>
+    </StateContext>
+  )
+}
+
+export default App

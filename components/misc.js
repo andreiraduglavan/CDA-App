@@ -1,24 +1,21 @@
 import { View, Text, Image, TextInput, TouchableOpacity, Modal, ActivityIndicator } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useNavigation } from '@react-navigation/core'
-import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated'
-import { AntDesign } from '@expo/vector-icons'
-import { arrayRemove, arrayUnion, increment } from 'firebase/firestore'
-import { useState } from 'react'
+import Animated, { SlideInDown, SlideOutDown, FadeIn, FadeOut } from 'react-native-reanimated'
+import { AntDesign, Octicons, Feather } from '@expo/vector-icons'
+import { useState, useEffect } from 'react'
 
 import { COLORS } from '../constants'
 import { HeartButton, BookmarkButton, CommentButton, DMButton, EventsFeedButton, MenuButton, PostButton, BackButton } from './button'
 import { useStateContext } from '../context/StateContext'
-import { updateDocu } from '../firebase'
 
 import logo from '../assets/Captureapplogo-removebg-preview.png'
 import logo2 from '../assets/Captureapplogo-fococlipping-standard-removebg-preview2.png'
+import { getCurrentUser, getDocData } from '../firebase'
 
 
-export const PostFooter = ({ data, addGradient, uid}) => {
+export const PostFooter = ({ data, addGradient, handleLike, isLiked, likes }) => {
   const navigation = useNavigation()
-  const [likes, setLikes] = useState(data.likes)
-  const [isLiked, setIsLiked] = useState(data.likingUsers.includes(uid))
 
   return (
     <View style={{minHeight: 16}}>
@@ -41,10 +38,7 @@ export const PostFooter = ({ data, addGradient, uid}) => {
         <View style={{flexDirection:'row', padding:12, justifyContent:'space-between'}}>
           <View style={{flexDirection:'row', justifyContent:'space-between', width:110}}>
             <View style={{flexDirection:'row', alignItems:'center'}}>
-              <HeartButton handlePress={ () => {
-                if(isLiked) { updateDocu('posts', data.id, {likingUsers: arrayRemove(uid), likes: increment(-1)}); setLikes(likes-1), setIsLiked(!isLiked) }
-                else { updateDocu('posts', data.id, {likingUsers: arrayUnion(uid), likes: increment(1)}); setLikes(likes+1); setIsLiked(!isLiked)}
-                }}
+              <HeartButton handlePress={handleLike}
                 color={isLiked ? 'red' : COLORS.third} 
               />
               <Text style={{marginLeft:6, fontWeight:'300', fontSize:14, color: COLORS.gray}}>{likes}</Text>
@@ -86,15 +80,16 @@ export const Header = () => {
   const { setDisplaySlideBar } = useStateContext()
   const navigation = useNavigation()
 
+  /*<EventsFeedButton color={'black'} size={24} handlePress={() => navigation.navigate("EventsFeed") }/>
+    <MenuButton color={'black'} size={24} handlePress={() => setDisplaySlideBar(true)}/>
+  */
   return (
     <View style={{height:68}}>
       <View style={{margin:8, marginTop: 16, marginBottom:4, justifyContent:'space-between', flexDirection:'row', alignItems:'center'}}>
         <Logo />
-        <View style={{flexDirection:'row', justifyContent:'space-between', width:130}}>
+        <View style={{flexDirection:'row', justifyContent:'space-between', width:56}}>
           <PostButton color={'black'} size={24} handlePress={() => navigation.navigate("AddPost")}/> 
-          <EventsFeedButton color={'black'} size={24} handlePress={() => navigation.navigate("EventsFeed") }/>
           <DMButton color={'black'} size={24} handlePress={() => navigation.navigate("DM")}/>
-          <MenuButton color={'black'} size={24} handlePress={() => setDisplaySlideBar(true)}/>
         </View>
       </View>
       
@@ -119,14 +114,27 @@ export const  ScreenHeader = ({screenName}) => {
   )
 }
 
-export const Footer = () => {
-
+/*export const Footer = () => {
+  const navigation = useNavigation()
+  const currentUser = getCurrentUser()
+  const [userData, setUserData] = useState(null)
+  
+  useEffect(() => {
+    getDocData('users', currentUser.uid).then( response => setUserData(response))
+  }, [])
+  
   return (
     <View>
-      <Text>Footer</Text>
+      <View style={{borderBottomWidth:1, borderColor:COLORS.third, opacity:0.1, width:'100%'}}></View>
+      <View style={{height:50, flexDirection:'row', alignItems:'center', justifyContent:'space-between', paddingHorizontal:24}}>
+        <Octicons name="home" size={24} onPress={() => navigation.navigate("Home")} suppressHighlighting={true}/>
+        <Feather name="calendar" size={24} onPress={() => navigation.navigate("EventsFeed")} suppressHighlighting={true} />
+        <Octicons name="person" size={24} onPress={() => navigation.navigate("Profile", { userData, self:true })} suppressHighlighting={true}/>
+        <Octicons name="search" size={24} onPress={() => { navigation.navigate('SearchScreen') }} suppressHighlighting={true}/>
+      </View>
     </View>
   )
-}
+}*/
 
 export const Searchbar = () => {
 
@@ -138,15 +146,18 @@ export const Searchbar = () => {
 }
 
 export const Icon = ({URL, size=50}) => {
+  const [loadingImage, setLoadingImage] = useState(false)
 
   return (
     <View style={{ width:size, height:size}}>
-      <Image source={{uri: URL}} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: '100%'}}/>
+      { loadingImage && <ActivityIndicator style={{alignSelf:'center', position:'absolute'}} /> }
+      <Image source={{uri: URL}} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: '100%'}} onLoadStart={() => setLoadingImage(true) } onLoadEnd={() => setLoadingImage(false)} />
     </View>
   )
 }
 
 export const TextField = ({handlePress, setContent, content}) => {
+  const [input, setInput] = useState('')
 
   return (
     <Animated.View style={{Height:60, justifyContent:'center'}}>
@@ -157,37 +168,18 @@ export const TextField = ({handlePress, setContent, content}) => {
           placeholder='Scrie un mesaj' 
           style={{borderWidth:1, borderColor:COLORS.lightGray, padding:6, marginHorizontal:12, borderRadius:16, paddingRight:70}}
           multiline={true}
-          onChangeText={text => setContent(text)}
-          value={content}
+          onChangeText={text => setInput(text)}
+          value={input}
         />
 
         <View style={{position:'absolute', right:24, bottom:18}}>
-          <TouchableOpacity onPress={handlePress}>
+          <TouchableOpacity onPress={() => { handlePress(input); setInput('') } }>
             <Text style={{color:COLORS.login, fontSize:16}}>Trimite</Text>
           </TouchableOpacity>
         </View>
       
       </View>
     </Animated.View>
-  )
-}
-
-export const Search = () => {
-  const navigation = useNavigation()
-  const [input, setInput] = useState('')
-
-  return (
-    <View style={{flexDirection:'row', alignItems:'center', marginBottom:12}}>
-      <TextInput 
-          placeholder='Caută'
-          style={{ backgroundColor:COLORS.lightGray, padding:6, marginHorizontal:12, borderRadius:16, width:240, fontSize:18}}
-          value={input}
-          onChangeText={text => setInput(text)}
-      />
-      <TouchableOpacity onPress={() => { navigation.navigate('SearchScreen', { input }) }}>
-        <AntDesign name="search1" size={22} color="black" />
-      </TouchableOpacity>
-    </View>
   )
 }
 
@@ -243,3 +235,14 @@ export const PopupAlert = ({display, text}) => {
     </View>
   )
 }
+
+export const Heart = () => {{
+
+  return (
+    <Animated.View entering={FadeIn.duration(300)} exiting={FadeOut.duration(300)} style={{position:'absolute', alignSelf:'center'}}>
+      <View>
+        <AntDesign name="heart" size={48} color='red' />
+      </View>
+    </Animated.View>
+  )
+}}

@@ -6,6 +6,7 @@ import { BackButton, Icon, Message, TextField } from '../components'
 import { COLORS } from '../constants'
 import { createDoc, updateDocu } from '../firebase'
 import { db } from '../firebase/firebaseApp'
+import { joinIDs } from '../utils'
 
 const ConversationHeader = ({participant}) => (
   <View style={{alignItems: 'center'}}>
@@ -24,9 +25,13 @@ const Conversation = ({ route, navigation }) => {
   })
   const flatlistRef = useRef()
   const screenHeigth = Dimensions.get('screen').height
-  const { participant, conversationID, currentUserID } = route.params
+  var { participant, conversationID, currentUserID } = route.params
+  
+  if(!conversationID) {
+    conversationID = joinIDs(participant.id, currentUserID)
+  }
   const [messages, setMessages] = useState([])
-  const [input, setInput] = useState('')
+
   const [newConversation, setNewConversation] = useState(false)
   const [lastUpdated, setLastUpdated] = useState(null)
 
@@ -54,11 +59,10 @@ const Conversation = ({ route, navigation }) => {
   }
 
   
-
+  
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(collection(db, 'conversations'), conversationID), (docSnapshot) => {
-      if(docSnapshot.data().lastUpdated) {
-        
+      if(docSnapshot.exists()) {
         setLastUpdated(docSnapshot.data().lastUpdated)
       }
     })
@@ -74,20 +78,23 @@ const Conversation = ({ route, navigation }) => {
   }, [lastUpdated])
   
 
-  const sendMessage = async () => {
-    const message = {content:input, conversationID:conversationID, liked:false, sender:currentUserID}
+  const sendMessage = async (input) => {
+    if(input.length!=0) {
+      const message = {content:input, conversationID:conversationID, liked:false, sender:currentUserID}
 
-    createDoc('messages', {createdAt:serverTimestamp(), ...message})
-    .then(result => { 
-      setMessages([{...message, id:result.id}, ...messages])
-      flatlistRef.current.scrollToOffset({ animated: true, offset: 0 })
-      setInput('')
-      if(newConversation) {
-        createDoc('conversations', {lastMessage:{content:input, sender:currentUserID},lastUpdated:serverTimestamp(),participants:[currentUserID, participant.id]}, conversationID)
-        .then(() => setNewConversation(false))
-      }
-      else { updateDocu('conversations', conversationID, {lastMessage:{content:input, sender:currentUserID},lastUpdated:serverTimestamp()} ) }
-    })
+      createDoc('messages', {createdAt:serverTimestamp(), ...message})
+      .then(result => { 
+        setMessages([{...message, id:result.id}, ...messages])
+        flatlistRef.current.scrollToOffset({ animated: true, offset: 0 })
+        
+        if(newConversation) {
+          createDoc('conversations', {lastMessage:{content:input, sender:currentUserID},lastUpdated:serverTimestamp(),participants:[currentUserID, participant.id]}, conversationID)
+          .then(() => setNewConversation(false))
+        }
+        else { updateDocu('conversations', conversationID, {lastMessage:{content:input, sender:currentUserID},lastUpdated:serverTimestamp()} ) }
+      })
+    }
+
   }
   
   return (
@@ -111,7 +118,7 @@ const Conversation = ({ route, navigation }) => {
           ListFooterComponent={() => <ConversationHeader participant={participant} />}
         />
 
-        <TextField setContent={setInput} handlePress={sendMessage} content={input}/>
+        <TextField handlePress={sendMessage}/>
       </KeyboardAvoidingView>     
     </SafeAreaView>
   )

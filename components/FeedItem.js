@@ -6,7 +6,7 @@ import Event from './Event'
 const FeedItem = ({ item, handleRemove }) => {
   return (
     <View>
-      { item.event ? <Event data={item} /> : <Post data={item} />}
+      { item.event ? <Event data={item} /> : <Post datA={item} />}
     </View>
   )
 }

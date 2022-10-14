@@ -2,10 +2,12 @@
   "expo": {
     "name": "app-2",
     "slug": "app-2",
-    "version": "1.0.0",
+    "version": "0.1.4",
     "orientation": "portrait",
-    "icon": "./assets/Captureapplogo-removebg-preview.png", 
+    "icon": "./assets/Captureapplogo-removebg-preview-2.png", 
+    "privacy":"public",
     "userInterfaceStyle": "light",
+    "owner":"andrei-inc",
     "splash": {
       "image": "./assets/Captureapplogo-fococlipping-standard-removebg-preview2.png",
       "resizeMode": "contain",

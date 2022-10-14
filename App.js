@@ -5,7 +5,8 @@ import { useState, useCallback } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
 
 import { StateContext } from './context/StateContext'
-import { Home, CommentSection, Details, Landing, Profile, DM, Conversation, AddPost, Settings, ChangePersonalInf, SearchScreen, SignUpScreen, EventsFeed } from './screens'
+import { Landing, SignUpScreen } from './screens'
+import MainTabNavigator from './screens/MainTabNavigator'
 import { COLORS } from './constants'
 import { auth } from './firebase/firebaseApp'
 import * as SplashScreen from 'expo-splash-screen'
@@ -32,9 +33,8 @@ const App = () => {
   
   onAuthStateChanged(auth, user => {
     if (user != null) {
-      setisSignedIn(true);
+      setisSignedIn(true)
       setAppIsReady(true)
-
     }
     else { setisSignedIn(false); setAppIsReady(true) }
   })
@@ -57,20 +57,10 @@ const App = () => {
   return (
     <StateContext>
         <NavigationContainer theme={theme} onReady={onLayoutRootView}>
-          <Stack.Navigator> 
+          <Stack.Navigator > 
             { isSignedIn ? 
                 <>
-                  <Stack.Screen name='Home' component={Home} options={{headerShown: false}}/>
-                  <Stack.Screen name='Details' component={Details} options={{headerShown: false}}/>
-                  <Stack.Screen name='CommentSection' component={CommentSection} options={{headerShown: false}}/>
-                  <Stack.Screen name='Profile' component={Profile} options={{headerShown: false}}/>
-                  <Stack.Screen name='DM' component={DM} options={{headerShown: false}}/>
-                  <Stack.Screen name='Conversation' component={Conversation} options={{headerShown: false}}/>
-                  <Stack.Screen name='AddPost' component={AddPost} options={{headerShown: false}}/>
-                  <Stack.Screen name='Settings' component={Settings} options={{headerShown: false}}/>
-                  <Stack.Screen name='ChangePersonalInf' component={ChangePersonalInf} options={{headerShown: false}}/>
-                  <Stack.Screen name='SearchScreen' component={SearchScreen} options={{headerShown: false}}/>
-                  <Stack.Screen name='EventsFeed' component={EventsFeed} options={{headerShown: false}}/>
+                  <Stack.Screen name='MainTabNavigator' component={MainTabNavigator} options={{headerShown: false}}/>
                 </>
               : 
                 <>

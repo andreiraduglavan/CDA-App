@@ -1,5 +1,5 @@
 import { View, Dimensions } from 'react-native'
-import Animated, {SlideInRight, SlideOutRight} from 'react-native-reanimated'
+import Animated, {SlideInRight, SlideOutRight } from 'react-native-reanimated'
 import { useNavigation } from '@react-navigation/native'
 
 import { getCurrentUser, SignOut } from '../firebase'

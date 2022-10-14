@@ -6,7 +6,6 @@ import { COLORS } from '../constants'
 
 const Settings = ({route, navigation}) => {
 
-
   return (
     <SafeAreaView>
       <ScreenHeader screenName={'Setări'}/>

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { collection, getDocs, limit, orderBy, query, startAfter, where } from 'firebase/firestore'
 import { db } from '../firebase/firebaseApp'
 
-import { ItemSeparator, FeedFooter, FeedItem, ScreenHeader } from '../components'
+import { ItemSeparator, FeedFooter, FeedItem } from '../components'
 
 const EventsFeed = () => { 
   const [posts, setPosts] = useState([])
@@ -39,7 +39,6 @@ const EventsFeed = () => {
   return (
     <SafeAreaView style={{flex:1}}>
       <View style={{ flex:1 }}>
-        <ScreenHeader screenName={'Evenimente'} />
 
         <FlatList 
           data={posts}
@@ -53,7 +52,6 @@ const EventsFeed = () => {
           onEndReached={fetchMoreData}
         />
       </View>
-      
     </SafeAreaView>
   )
 }

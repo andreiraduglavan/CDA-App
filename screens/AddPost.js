@@ -36,7 +36,7 @@ const AddPost = ({route, navigation}) => {
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 1,
+      quality: 0.8,
     })
 
     if (!result.cancelled) {
@@ -51,9 +51,9 @@ const AddPost = ({route, navigation}) => {
     setTimeout(() => {setDisplayPopUpAlert(false)}, 2000)
   } 
 
-  const handlePost = (userID, name, username, content, images, event, eventFields) => {
+  const handlePost = (userID, name, profileImgURL, username, content, images, event, eventFields) => {
     setLoading(true)
-    addPost(userID, name, username, content, images, event, eventFields)
+    addPost(userID, name, username, content, images, event, eventFields, profileImgURL)
     .then((result) => {
       setLoading(false)
       handlePopUp()
@@ -143,7 +143,7 @@ const AddPost = ({route, navigation}) => {
 
         { loading ?
           <ActivityIndicator /> :
-          <TouchableOpacity onPress={() =>  handlePost(user.id, user.name, user.username, content, images, event, {name, location, numberOfVolunteers, date}) }>
+          <TouchableOpacity onPress={() =>  handlePost(user.id, user.name, user.profileImgURL, user.username, content, images, event, {name, location, numberOfVolunteers, date}) }>
             <Text style={{color:COLORS.login, fontSize:16}}>Postează</Text>
           </TouchableOpacity>
         }

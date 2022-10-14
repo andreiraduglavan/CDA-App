@@ -11,5 +11,6 @@ import ChangePersonalInf from "./ChangePersonalInf"
 import SearchScreen from "./SearchScreen"
 import SignUpScreen from "./SignUpScreen"
 import EventsFeed from "./EventsFeed"
+import Followers from "./Followers"
 
-export { Details, Home, CommentSection, EventsFeed, Landing, Profile, DM, Conversation, AddPost, Settings, ChangePersonalInf, SearchScreen, SignUpScreen }
+export { Details, Home, Followers, CommentSection, EventsFeed, Landing, Profile, DM, Conversation, AddPost, Settings, ChangePersonalInf, SearchScreen, SignUpScreen }

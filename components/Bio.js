@@ -4,7 +4,7 @@ import { COLORS } from '../constants'
 import { AddBio } from './button'
 import { updateDocu } from '../firebase'
 
-const Bio = ({ userData }) => {
+const Bio = ({ userData, currentUser }) => {
   const [bio, setBio] = useState(userData ? userData.bio : null)
   const [lastTap, setLastTap] = useState(null)
   const [edit, setEdit] = useState(false)
@@ -20,7 +20,7 @@ const Bio = ({ userData }) => {
   const handleDoubleTap = () => {
     const now = Date.now()
     const DOUBLE_PRESS_DELAY = 300
-    if (lastTap && (now - lastTap) < DOUBLE_PRESS_DELAY) {
+    if (lastTap && (now - lastTap) < DOUBLE_PRESS_DELAY && currentUser.uid == userData.id) {
       setEdit(true)
     } else {
       setLastTap(now)
@@ -40,7 +40,7 @@ const Bio = ({ userData }) => {
   return (
     <TouchableWithoutFeedback onPress={handleDoubleTap}>
       <View>
-      { emptyBio &&
+      { emptyBio && currentUser.uid == userData.id &&
         <AddBio 
           color={'black'} 
           style={{ marginTop:12}} 

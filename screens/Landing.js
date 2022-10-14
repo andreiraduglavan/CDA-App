@@ -5,9 +5,11 @@ import { useState } from 'react'
 import { GoogleLogin, LoginButton, Logo2 } from '../components'
 import { LogIn } from '../firebase'
 import { COLORS } from '../constants'
+import { useStateContext } from '../context/StateContext'
 
 const Landing = () => {
   const navigation = useNavigation()
+  const { setCurrentUser } = useStateContext()
   
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -27,9 +29,14 @@ const Landing = () => {
         }
         
         <TextInput placeholder='email' style={{ width:'60%',borderWidth:1, borderColor:COLORS.gray, padding:12, marginHorizontal:12, borderRadius:4, marginBottom:8}} onChangeText={text => setEmail(text)} />
-        <TextInput placeholder='parola' style={{ width:'60%',borderWidth:1, borderColor:COLORS.gray, padding:12, marginHorizontal:12, borderRadius:4, marginBottom:16}} onChangeText={text => setPassword(text)} />
+        <TextInput placeholder='parola' secureTextEntry={true} style={{ width:'60%',borderWidth:1, borderColor:COLORS.gray, padding:12, marginHorizontal:12, borderRadius:4, marginBottom:16}} onChangeText={text => setPassword(text)} />
         
-        <LoginButton handlePress={async () => {var message = await LogIn(email, password); setErrorMessage(message.slice(10)), seterrorMessageStatus(true)}} />
+        <LoginButton handlePress={async () => {
+          LogIn(email, password)
+          .then( result => setCurrentUser(result))
+          .catch( error => { setErrorMessage(error.slice(10)), seterrorMessageStatus(true) } )
+          } } 
+        />
         
         <View style={{flexDirection:'row', marginHorizontal:16, alignItems:'center', marginVertical:16}}>
           <View style={{borderBottomWidth:1, borderColor:COLORS.third, opacity:0.4, width:'40%'}}></View>

@@ -1,8 +1,8 @@
 {
   "name": "app-2",
-  "version": "0.1.0",
+  "version": "0.1.4",
   "main": "node_modules/expo/AppEntry.js",
-  "homepage":".",
+  "homepage": ".",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -10,6 +10,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@react-navigation/bottom-tabs": "^6.4.0",
     "@react-navigation/native": "^6.0.12",
     "@react-navigation/stack": "^6.2.3",
     "expo": "~46.0.9",
@@ -17,6 +18,7 @@
     "expo-image-picker": "~13.3.1",
     "expo-linear-gradient": "~11.4.0",
     "expo-splash-screen": "^0.16.2",
+    "expo-updates": "~0.14.6",
     "firebase": "^9.10.0",
     "react": "18.0.0",
     "react-native": "0.69.6",

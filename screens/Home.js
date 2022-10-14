@@ -3,12 +3,11 @@ import { useState, useEffect } from 'react'
 import { collection, getDocs, limit, orderBy, query, startAfter } from 'firebase/firestore'
 import { db } from '../firebase/firebaseApp'
 
-import { Header, SlideBar, ItemSeparator, FeedFooter, FeedItem, PopupAlert } from '../components'
+import { Header, ItemSeparator, FeedFooter, FeedItem, PopupAlert } from '../components'
 import { useStateContext } from '../context/StateContext'
 
 const Home = () => { 
-  const { displaySlideBar, displayPopUpAlert, IDToBeRemoved, popUpText, newPost } = useStateContext()
-  var opacity = displaySlideBar ? 0.1 : 1
+  const { displayPopUpAlert, IDToBeRemoved, popUpText, newPost } = useStateContext()
   const [posts, setPosts] = useState([])
   const postsRef = collection(db, 'posts')
   const [isLoading, setIsLoading] = useState(false)
@@ -52,7 +51,7 @@ const Home = () => {
   
   return (
     <SafeAreaView style={{flex:1}}>
-      <View style={{opacity:opacity, flex:1}}>
+      <View style={{flex:1}}>
         <Header />
         <FlatList 
           data={posts}
@@ -66,9 +65,6 @@ const Home = () => {
           onEndReached={fetchMoreData}
         />
       </View>
-      { displaySlideBar && 
-        <SlideBar />
-      }
       <PopupAlert display={displayPopUpAlert} text={popUpText}/> 
     </SafeAreaView>
   )

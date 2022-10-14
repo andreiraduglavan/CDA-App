@@ -1,4 +1,4 @@
-import { doc, setDoc, addDoc, updateDoc, collection, getDoc, query, where, getDocs, serverTimestamp, deleteDoc, orderBy, limit } from "firebase/firestore"
+import { doc, setDoc, addDoc, updateDoc, collection, getDoc, query, where, getDocs, serverTimestamp, deleteDoc, orderBy, limit, documentId } from "firebase/firestore"
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage'
 import { v4 } from 'uuid'
 
@@ -106,7 +106,7 @@ export const deleteImage = (imageToBeDeleted) => {
   return p
 }
 
-export const addPost = ( userID, name, username, content, images, event, eventFields) => {
+export const addPost = ( userID, name, username, content, images, event, eventFields, profileImgURL) => {
   const postsRef = collection(db, 'posts')
 
   var p = new Promise( async (resolve, reject) => {
@@ -116,7 +116,7 @@ export const addPost = ( userID, name, username, content, images, event, eventFi
         await uploadImage(image).then((result) => imgURLs.push(result)).catch((error) => reject(error))
       }
       
-      const fields = {userID:userID, name:name, username:username, content:content, imgURLs:imgURLs, event:event, createdAt: serverTimestamp(), comments:[], likingUsers: [], likes: 0}
+      const fields = {userID:userID, profileImgURL:profileImgURL, name:name, username:username, content:content, imgURLs:imgURLs, event:event, createdAt: serverTimestamp(), comments:[], likingUsers: [], likes: 0}
       await addDoc(postsRef, fields).then((response) => resolve({...fields, id:response.id})).catch((error) => reject(error))
     }
     else {
@@ -137,7 +137,7 @@ export const deletePost = ( postID, images) => {
   const postsRef = collection(db, 'posts')
 
   var p = new Promise( async (resolve, reject) => {
-    let imgURLs = []
+    
     for await (const image of images) {
       await deleteImage(image).then(() => {}).catch((error) => reject(error))
     }
@@ -151,7 +151,7 @@ export const deletePost = ( postID, images) => {
 
 export const getPosts = (id) => {
   var p = new Promise((resolve, reject) => {
-    const posts = query(collection(db, 'posts'), where('userID', '==', id), orderBy('createdAt', 'desc'), limit(10))
+    const posts = query(collection(db, 'posts'), where('userID', '==', id), orderBy('createdAt', 'desc'), limit(3))
     getDocs(posts)
     .then((querySnapshot) => {
       var posts = querySnapshot.docs.map((doc) => ({id:doc.id, ...doc.data()}) )
@@ -180,6 +180,20 @@ export const getUsersList = () => {
     const docRef = doc(db, 'usersList', 'usersList')
     getDoc(docRef)
     .then(response => resolve(response.data().usersList))
+    .catch(error => reject(error))
+  })
+
+  return p
+}
+
+export const getFollowersDetails = (followersIDs) => {
+  var p = new Promise((resolve, reject) => {
+    const q = query(collection(db, 'users'), where(documentId(), 'in', followersIDs))
+    getDocs(q)
+    .then(querySnapshot => {
+      var followers = querySnapshot.docs.map((doc) => ({id:doc.id, username:doc.data().username, profileImgURL:doc.data().profileImgURL}) )
+      resolve(followers)
+    })
     .catch(error => reject(error))
   })
 

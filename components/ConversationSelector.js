@@ -32,7 +32,7 @@ const ConversationSelector = ({data, currentUserID}) => {
         
         <View style={{marginLeft:8}}>
           <Text style={{}}>{participant && participant.name}</Text>
-          <Text style={{color:COLORS.gray, fontSize:13 }}>{data.lastMessage.content} <Text style={{fontSize:20}}>·</Text> {getTimeDiff(data.lastUpdated.seconds)}</Text>
+          <Text style={{color:COLORS.gray, fontSize:13 }}>{data.lastMessage.content} <Text style={{fontSize:20}}>·</Text> {data.lastUpdated && getTimeDiff(data.lastUpdated.seconds)}</Text>
         </View>
         
       </View>

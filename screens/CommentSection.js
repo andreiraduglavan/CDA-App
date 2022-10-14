@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { Comment, ScreenHeader, TextField } from '../components'
 import { getCurrentUser, updateDocu, getDocData } from '../firebase'
+import { useStateContext } from '../context/StateContext'
 
 const CommentSection = ({route, navigation}) => {
   const { StatusBarManager } = NativeModules
@@ -15,17 +16,22 @@ const CommentSection = ({route, navigation}) => {
   const { data } = route.params
   const [comments, setComments] = useState(data.comments)
   const screenHeigth = Dimensions.get('screen').height
-  const [input, setInput] = useState("")
+  
+  const { setUpdateComments } = useStateContext()
   const currentUser = getCurrentUser()
   var user
   
   getDocData('users', currentUser.uid).then( docData => user = docData)
 
-  const handlePress = () => { 
-    updateDocu('posts', data.id, {comments: arrayUnion({username:user.username, content:input, likes:0, userID:user.id})})
-    .then(() => setComments([{username:user.username, content:input, likes:0, userID:user.id}, ...comments]))
-    setInput('')
+  const handlePress = (input) => { 
+    
+    if(input.length!=0) {
+      updateDocu('posts', data.id, {comments: arrayUnion({username:user.username, content:input, likes:0, userID:user.id})})
+      .then(() => {setComments([{username:user.username, content:input, likes:0, userID:user.id}, ...comments]); setUpdateComments({postId:data.id, fields: {username:user.username, content:input, likes:0, userID:user.id}})})
+    }
+    
   }
+
 
   return (
     <SafeAreaView>
@@ -40,7 +46,7 @@ const CommentSection = ({route, navigation}) => {
         </View>
       </ScrollView>
 
-      <TextField setContent={setInput} handlePress={handlePress} content={input} />
+      <TextField handlePress={handlePress} />
 
       </KeyboardAvoidingView>
     </SafeAreaView>

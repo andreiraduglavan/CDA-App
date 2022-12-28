@@ -26,3 +26,20 @@ export const getTimeDiff = (date) => {
     return timeDiff+'s'
   }
 }
+
+export const getCategory = (category) => {
+  switch(category) {
+    case 'health':
+      return 'Sănătate'
+    case 'education':
+      return 'Educație'
+    case 'culture':
+      return 'Artă și cultură'
+    case 'environment':
+      return 'Mediu și protecția animalelor'
+    case 'human rights':
+      return 'Drepturile omului'
+    case 'social':
+      return 'Social'
+  }
+}

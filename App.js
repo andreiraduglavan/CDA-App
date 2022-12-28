@@ -40,6 +40,7 @@ const App = () => {
   })
 
   const onLayoutRootView = useCallback(async () => {
+    
     if (appIsReady) {
       // This tells the splash screen to hide immediately! If we call this after
       // `setAppIsReady`, then we may see a blank screen while the app is
@@ -48,15 +49,16 @@ const App = () => {
       // performed layout.
       await SplashScreen.hideAsync();
     }
-  }, [appIsReady]);
+  }, [appIsReady])
+
   
   if (!appIsReady) {
     return null
   }
-
+  
   return (
-    <StateContext>
-        <NavigationContainer theme={theme} onReady={onLayoutRootView}>
+      <StateContext>
+        <NavigationContainer theme={theme} onReady={onLayoutRootView} >
           <Stack.Navigator > 
             { isSignedIn ? 
                 <>
@@ -70,7 +72,7 @@ const App = () => {
             }        
           </Stack.Navigator>
         </NavigationContainer>
-    </StateContext>
+      </StateContext>
   )
 }
 

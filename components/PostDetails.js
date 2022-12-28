@@ -14,11 +14,7 @@ import Post from './Post'
 const PostDetails = ( {data, userData} ) => {
   const { setDisplayPopUpAlert, setIDToBeRemoved } = useStateContext()
   const navigation = useNavigation()
-  const uid = userData.id
-  const screenWidth = Dimensions.get('screen').width
-  const [display, setDisplay] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
-  const currentUser = getCurrentUser()
 
   const handlePopUp = () => {
     

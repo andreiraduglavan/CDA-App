@@ -2,16 +2,16 @@ import { useState, useEffect } from 'react'
 import { SafeAreaView, FlatList } from 'react-native'
 import { query, onSnapshot, where, orderBy, collection } from 'firebase/firestore'
 
-import { ConversationSelector, ScreenHeader } from '../components'
+import { ConversationSelector, SafeViewAndroid, ScreenHeader } from '../components'
 import { db } from '../firebase/firebaseApp'
-import { getCurrentUser } from '../firebase'
+import { useStateContext } from '../context/StateContext'
+
 
 const DM = () => {
-  const currentUser = getCurrentUser()
-  const uid = currentUser.uid
-  const [conversations, setConversations] = useState([])
-
-  const getConversations = () => {
+  const { currentUser, conversations } = useStateContext()
+  const uid = currentUser.id
+  
+  /*const getConversations = () => {
     const q = query(collection(db, "conversations"), where('participants', 'array-contains', uid), orderBy('lastUpdated', 'desc'))
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const conversations = []
@@ -29,10 +29,10 @@ const DM = () => {
     //getConversations(uid).then(conversations => setConversations(conversations))
     getConversations()
 
-  }, [])
+  }, [])*/
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={SafeViewAndroid.AndroidSafeArea}>
         <ScreenHeader screenName={'Conversații'}/>
 
         <FlatList

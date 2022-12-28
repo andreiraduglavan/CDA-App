@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 
 import { COLORS } from '../constants'
 import { DotsButton } from './button'
-import { PostFooter, DeletePostModal, PopupMenu, Heart } from './misc'
+import { PostFooter, DeletePostModal, Heart } from './misc'
 import { getCurrentUser } from '../firebase'
 import { deletePost, updateDocu } from '../firebase/firestore'
 import { useStateContext } from '../context/StateContext'
@@ -12,19 +12,22 @@ import { arrayRemove, arrayUnion, increment } from 'firebase/firestore'
 
 const Post = ({ datA }) => {
   const [data, setData] = useState(datA)
-  const { setDisplayPopUpAlert, setIDToBeRemoved, setPopUpText } = useStateContext()
+  const uid = data.userID
+  const [userData, setUserData] = useState({id:uid, profileImgURL:data.profileImgURL, username:data.username, name:data.name})
+  const currentUser = getCurrentUser()
+  
+  const { setDisplayPopUpAlert, setIDToBeRemoved, setPopUpText, updateComments } = useStateContext()
+  
   const screenWidth = Dimensions.get('screen').width
   const navigation = useNavigation()
-  const uid = data.userID
-  const currentUser = getCurrentUser()
-  const [userData, setUserData] = useState({id:uid, profileImgURL:data.profileImgURL, username:data.username, name:data.name})
-  const [display, setDisplay] = useState(false)
-  const [modalVisible, setModalVisible] = useState(false)
-  const { updateComments } = useStateContext()
+  
   const [likes, setLikes] = useState(data.likes)
   const [isLiked, setIsLiked] = useState(data.likingUsers.includes(uid))
-  const [lastTap, setLastTap] = useState(null)
+
+  const [modalVisible, setModalVisible] = useState(false)
   const [showHeart, setShowHeart] = useState(false)
+  const [lastTap, setLastTap] = useState(null)
+
   const [loadingProfilepic, setLoadingProfilepic] = useState(false)
   const [loadingImage, setLoadingImage] = useState(false)
   
@@ -66,7 +69,6 @@ const Post = ({ datA }) => {
   }, [updateComments])
   
   return (
-    <TouchableWithoutFeedback onPress={() => setDisplay(false)}>
     <View style={{margin: 8}}>
       <DeletePostModal modalVisible={modalVisible} handleClose={() => {setModalVisible(false)} } handleDelete={() => {deletePost(data.id, data.imgURLs).then(() => {handlePopUp(); setIDToBeRemoved(data.id)}); setModalVisible(false) }} />
       <View style={{padding:8}}>
@@ -82,10 +84,7 @@ const Post = ({ datA }) => {
               >{data.name}</Text>
               <Text style={{fontSize: 12, color:COLORS.gray}}>{data.username}</Text>
             </View>
-            <DotsButton handlePress={() => currentUser.uid==uid && setDisplay(true) }/>
-            { display &&
-              <PopupMenu handlePress={() => {setModalVisible(true); setDisplay(false) } }/>
-            }
+            <DotsButton handlePress={() => currentUser.uid==uid && setModalVisible(true) }/>
           </View>
         </View>
 
@@ -112,7 +111,6 @@ const Post = ({ datA }) => {
 
       <PostFooter data={data} addGradient={false} handleLike={handleLike} isLiked={isLiked} likes={likes} />
     </View>
-    </TouchableWithoutFeedback>
   )
 }
 

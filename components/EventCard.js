@@ -1,43 +1,32 @@
 import { View, Text, Image, ActivityIndicator } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { useState } from 'react'
-import { arrayRemove, arrayUnion, increment } from 'firebase/firestore'
 
 import { COLORS } from '../constants'
 import { JoinButton } from './button'
-import { PostFooter } from './misc'
 import { Feather, Ionicons, EvilIcons } from '@expo/vector-icons'
-import { updateDocu } from '../firebase'
 import { getImage } from '../assets/category-icons'
 
-const Event = ({data}) => {
+const EventCard = ({data}) => {
   const navigation = useNavigation()
-  const uid = data.userID
-  const [likes, setLikes] = useState(data.likes)
-  const [isLiked, setIsLiked] = useState(data.likingUsers.includes(uid))
   const [loadingImage, setLoadingImage] = useState(false)
-
-  const handleLike = () => {
-    if(isLiked) { updateDocu('posts', data.id, {likingUsers: arrayRemove(uid), likes: increment(-1)}); setLikes(likes-1), setIsLiked(!isLiked) }
-    else { updateDocu('posts', data.id, {likingUsers: arrayUnion(uid), likes: increment(1)}); setLikes(likes+1); setIsLiked(!isLiked)}
-  }
 
   return (
     <View style={{margin: 8, marginTop:0}}>
       <View style={{margin:-8, justifyContent:'center'}}>
         { loadingImage && <ActivityIndicator style={{alignSelf:'center', position:'absolute'}} /> }
-        <Image source={{uri: data.imgURLs[0]}} resizeMode='cover' style={{ width: '100%', height: 200, borderBottomLeftRadius: 16, borderBottomRightRadius: 16}} onLoadStart={() => setLoadingImage(true) } onLoadEnd={() => setLoadingImage(false)} />
-        <View style={{position: 'absolute', bottom:-20, right:40}}>
+        <Image source={{uri: data.imgURLs[0]}} resizeMode='cover' style={{ width: '100%', height: 160, borderBottomLeftRadius: 16, borderBottomRightRadius: 16}} onLoadStart={() => setLoadingImage(true) } onLoadEnd={() => setLoadingImage(false)} />
+        <View style={{position: 'absolute', bottom:-20, right:40, display:'none'}}>
           <JoinButton handlePress={() => {}}/>
         </View>
       </View>
       
-      <View style={{padding:16, marginTop: 8}}>
+      <View style={{padding:16, paddingHorizontal:4}}>
         <View style={{flexDirection:'row', alignItems:'center', justifyContent:'space-between', marginVertical:8}}>
           <View>
-            <Text style={{fontSize: 20, fontWeight:'bold'}}>{data.title}</Text>
+            <Text style={{fontSize: 20, fontWeight:'bold'}}>{data.name}</Text>
 
-            <Text style={{color:COLORS.gray, marginTop:4}}>Hosted by <Text onPress={() => navigation.navigate("Profile", { userData:{id:uid, username:data.username, profileImgURL:data.profileImgURL} })}>{data.username}</Text></Text>
+            <Text style={{color:COLORS.gray, marginTop:4}}>Hosted by <Text onPress={() => navigation.navigate("Profile", { userData:{id:data.userID, username:data.username, profileImgURL:data.profileImgURL} })}>{data.username}</Text></Text>
           </View>
           
           {data.category && <Image source={getImage(data.category)} resizeMode='cover' style={{ width: 36, height: 36, borderRadius:100}} />}
@@ -54,14 +43,13 @@ const Event = ({data}) => {
           <Text style={{color: COLORS.gray}}> {data.numberOfVolunteers} locuri</Text>
         </View>
 
-        <View style={{padding:4, marginTop:6}}>
-            <Text style={{fontSize:14}}>{data.content}</Text>
-        </View>
       </View>
 
-      <PostFooter data={data} addGradient={false} handleLike={handleLike} isLiked={isLiked} likes={likes} />
+      <View style={{width:'60%', alignSelf:'center', minHeight:40}}>
+        <JoinButton handlePress={() => {}} text={'Vezi detalii'}/>
+      </View>
     </View>
   )
 }
 
-export default Event
+export default EventCard

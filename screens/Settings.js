@@ -1,13 +1,13 @@
 import { View, Text, SafeAreaView, TouchableHighlight } from 'react-native'
 import { MaterialIcons} from '@expo/vector-icons'
 
-import { ScreenHeader } from '../components'
+import { SafeViewAndroid, ScreenHeader } from '../components'
 import { COLORS } from '../constants'
 
 const Settings = ({route, navigation}) => {
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={SafeViewAndroid.AndroidSafeArea}>
       <ScreenHeader screenName={'Setări'}/>
       
       <TouchableHighlight activeOpacity={0.6} underlayColor={COLORS.lightGray} onPress={() => navigation.navigate("ChangePersonalInf")}>

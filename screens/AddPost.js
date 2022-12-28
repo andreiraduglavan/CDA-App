@@ -4,11 +4,13 @@ import { useState } from 'react'
 import { Calendar } from 'react-native-calendars'
 import { AntDesign } from '@expo/vector-icons';
 
-import { GaleryButton, ScreenHeader } from '../components'
-import { COLORS } from '../constants'
+import { GaleryButton, SafeViewAndroid, ScreenHeader } from '../components'
+import { categories, COLORS } from '../constants'
 import { addPost, getCurrentUser, getDocData } from '../firebase'
 import { useStateContext } from '../context/StateContext'
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native-gesture-handler'
+import { getCategory } from '../utils'
+import { LinearGradient } from 'expo-linear-gradient';
 
 const AddPost = ({route, navigation}) => {
   const { setDisplayPopUpAlert, setPopUpText, setNewPost } = useStateContext()
@@ -21,11 +23,12 @@ const AddPost = ({route, navigation}) => {
   const [images, setImages] = useState([])
   const [content, setContent] = useState('')
   const [loading, setLoading] = useState(false)
-  const [name, setName] = useState('')
+  const [title, setTitle] = useState('')
   const [location, setLocation] = useState('')
-  const [numberOfVolunteers, setNumberOfVolunteers] = useState(1)
+  const [numberOfVolunteers, setNumberOfVolunteers] = useState('')
   const [date, setDate] = useState('')
   const [openCalendar, setOpenCalendar] = useState(false)
+  const [category, setCategory] = useState('social')
 
   const [event, setEvent] = useState(false);
   const toggleSwitch = () => {setEvent(previousState => !previousState) }
@@ -36,7 +39,7 @@ const AddPost = ({route, navigation}) => {
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 0.8,
+      quality: 0.2,
     })
 
     if (!result.cancelled) {
@@ -67,9 +70,9 @@ const AddPost = ({route, navigation}) => {
 
     
   }
-
+  
   return (
-    <SafeAreaView>
+    <SafeAreaView style={SafeViewAndroid.AndroidSafeArea}>
       <ScreenHeader screenName={event ? 'Adaugă un eveniment' : 'Adaugă o postare'}/>
 
       <KeyboardAvoidingView style={{height:screenHeigth-20}} behavior={Platform.OS === "ios" ? "padding" : "height"}>
@@ -78,7 +81,7 @@ const AddPost = ({route, navigation}) => {
       <View style={{marginTop:16, marginHorizontal:12, flexDirection:'row', alignItems:'center'}}>
         <Text style={{marginRight:8, fontSize:16}}>Vrei să adaugi un eveniment?</Text>
         <Switch
-          trackColor={{ false: "#767577", true: COLORS.violet }}
+          trackColor={{ false: "#767577", true: COLORS.login }}
           thumbColor={event ? COLORS.white : COLORS.white}
           ios_backgroundColor="#3e3e3e"
           onValueChange={toggleSwitch}
@@ -90,11 +93,37 @@ const AddPost = ({route, navigation}) => {
         <View style={{marginHorizontal:12}}>
           { !openCalendar ? 
             <View>
+              <Text style={{ fontSize:16, margin:4}}>Categorie: </Text>
+                <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+                  { categories
+                    .map( item => (
+                      <TouchableOpacity onPress={() => setCategory(item)} key={item}>
+                        <View style={{padding:4, paddingHorizontal:8, backgroundColor: category == item ? COLORS.violet : COLORS.lightGray, margin:4, borderRadius:100}}>
+                          { category == item &&
+                            <LinearGradient start={[0, 1]} end={[0.8, 0]}
+                              colors={[COLORS.violet, COLORS.blue]}
+                              style={{
+                                position: 'absolute',
+                                left: 0,
+                                right: 0,
+                                top: 0,
+                                bottom:0,
+                                borderRadius:24
+                              }}
+                            />
+                          }
+                          <Text style={{fontSize:15, color: category == item ? COLORS.white : 'black'}}>{getCategory(item)}</Text>
+                        </View>
+                      </TouchableOpacity>  
+                    ))
+                  }
+                </ScrollView>
+
               <TextInput 
                 placeholder='Numele evenimentului'
                 style={{backgroundColor:COLORS.lightGray, padding:10, borderRadius:16, paddingRight:70, marginTop:16}}
-                onChangeText={(text) => setName(text)}
-                value={name}
+                onChangeText={(text) => setTitle(text)}
+                value={title}
               />
               <TextInput 
                 placeholder='Locația'
@@ -105,12 +134,14 @@ const AddPost = ({route, navigation}) => {
               <TextInput 
                 placeholder='Numărul de participanți'
                 style={{backgroundColor:COLORS.lightGray, padding:10, borderRadius:16, paddingRight:70, marginTop:8}}
-                onChangeText={(text) => setNumberOfVolunteers(Number(text))}
+                onChangeText={(text) => setNumberOfVolunteers(text)}
                 keyboardType='numeric'
                 value={numberOfVolunteers}
               />
               <View style={{flexDirection:'row', marginTop:16, alignItems:'center', marginLeft:12}}>
-                <AntDesign name="calendar" size={24} color={COLORS.login}  onPress={() => setOpenCalendar(true)} />
+                <TouchableOpacity onPress={() => setOpenCalendar(true)}>
+                  <AntDesign name="calendar" size={24} color={COLORS.login} />
+                </TouchableOpacity>
                 <Text style={{marginRight:8, fontSize:16, marginLeft:8}}>{date =='' ? 'Alege data evenimentului' : date}</Text>
               </View>
             </View> :
@@ -143,7 +174,7 @@ const AddPost = ({route, navigation}) => {
 
         { loading ?
           <ActivityIndicator /> :
-          <TouchableOpacity onPress={() =>  handlePost(user.id, user.name, user.profileImgURL, user.username, content, images, event, {name, location, numberOfVolunteers, date}) }>
+          <TouchableOpacity onPress={() =>  handlePost(user.id, user.name, user.profileImgURL, user.username, content, images, event, {title, location, numberOfVolunteers: Number(numberOfVolunteers), date, category}) }>
             <Text style={{color:COLORS.login, fontSize:16}}>Postează</Text>
           </TouchableOpacity>
         }

@@ -1,7 +1,7 @@
 import { View, Text, SafeAreaView, TouchableHighlight } from 'react-native'
 import { useState, useEffect } from 'react'
 
-import { Icon, ScreenHeader, FeedFooter } from '../components'
+import { Icon, ScreenHeader, FeedFooter, SafeViewAndroid } from '../components'
 import { getFollowersDetails } from '../firebase/firestore'
 import { FlatList } from 'react-native-gesture-handler'
 import { COLORS } from '../constants'
@@ -54,7 +54,7 @@ const Followers = ({route, navigation}) => {
   }, [])
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={SafeViewAndroid.AndroidSafeArea}>
       <ScreenHeader screenName={'Followers'} />
       <FlatList
         data={followers}

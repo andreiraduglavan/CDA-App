@@ -1,18 +1,23 @@
-import { View, Text, Image, TextInput, TouchableOpacity, Modal, ActivityIndicator } from 'react-native'
+import { View, Text, Image, TextInput, TouchableOpacity, Modal, ActivityIndicator, Dimensions, StatusBar, StyleSheet, Platform, NativeModules } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useNavigation } from '@react-navigation/core'
-import Animated, { SlideInDown, SlideOutDown, FadeIn, FadeOut } from 'react-native-reanimated'
-import { AntDesign, Octicons, Feather } from '@expo/vector-icons'
-import { useState, useEffect } from 'react'
+import Animated, { SlideInDown, SlideOutDown, FadeIn, FadeOut, SlideInUp, SlideOutUp } from 'react-native-reanimated'
+import { AntDesign } from '@expo/vector-icons'
+import { useState } from 'react'
 
 import { COLORS } from '../constants'
-import { HeartButton, BookmarkButton, CommentButton, DMButton, EventsFeedButton, MenuButton, PostButton, BackButton } from './button'
-import { useStateContext } from '../context/StateContext'
+import { HeartButton, BookmarkButton, CommentButton, DMButton, PostButton, BackButton } from './button'
 
 import logo from '../assets/Captureapplogo-removebg-preview.png'
 import logo2 from '../assets/Captureapplogo-fococlipping-standard-removebg-preview2.png'
-import { getCurrentUser, getDocData } from '../firebase'
 
+export const SafeViewAndroid = StyleSheet.create({
+  AndroidSafeArea: {
+    flex: 1,
+    backgroundColor: "white",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
+  }
+})
 
 export const PostFooter = ({ data, addGradient, handleLike, isLiked, likes }) => {
   const navigation = useNavigation()
@@ -76,24 +81,23 @@ export const FeedFooter = ({isLoading, endReached}) => (
 )
 
 
-export const Header = () => {
-  const { setDisplaySlideBar } = useStateContext()
+export const Header = ({ showDelimitator=true }) => {
   const navigation = useNavigation()
-
   /*<EventsFeedButton color={'black'} size={24} handlePress={() => navigation.navigate("EventsFeed") }/>
     <MenuButton color={'black'} size={24} handlePress={() => setDisplaySlideBar(true)}/>
   */
   return (
-    <View style={{height:68}}>
-      <View style={{margin:8, marginTop: 16, marginBottom:4, justifyContent:'space-between', flexDirection:'row', alignItems:'center'}}>
-        <Logo />
-        <View style={{flexDirection:'row', justifyContent:'space-between', width:56}}>
-          <PostButton color={'black'} size={24} handlePress={() => navigation.navigate("AddPost")}/> 
-          <DMButton color={'black'} size={24} handlePress={() => navigation.navigate("DM")}/>
-        </View>
+    <View>
+      <View style={{height:68, justifyContent:'center'}}>
+        <View style={{margin:8, marginBottom:4, justifyContent:'space-between', flexDirection:'row', alignItems:'center'}}>
+          <Logo />
+          <View style={{flexDirection:'row', justifyContent:'space-between', width:56}}>
+            <PostButton color={'black'} size={24} handlePress={() => navigation.navigate("AddPost")}/> 
+            <DMButton color={'black'} inHeader={true} size={24} handlePress={() => navigation.navigate("DM")}/>
+          </View>
+        </View>      
       </View>
-      
-      <View style={{borderBottomWidth:1, borderColor:COLORS.third, opacity:0.1, width:'120%', marginTop:8}}></View>
+      { showDelimitator && <View style={{borderBottomWidth:1, borderColor:COLORS.third, opacity:0.1, width:'120%', marginTop:0}}></View>}
     </View>  
   )
 }
@@ -136,22 +140,22 @@ export const  ScreenHeader = ({screenName}) => {
   )
 }*/
 
-export const Searchbar = () => {
+/*export const Searchbar = () => {
 
   return (
     <View>
       <TextInput placeholder='Caută' style={{ backgroundColor:COLORS.lightGray, padding:4, borderRadius:4, fontSize:18}}/>
     </View>
   )
-}
+}*/
 
 export const Icon = ({URL, size=50}) => {
   const [loadingImage, setLoadingImage] = useState(false)
 
   return (
-    <View style={{ width:size, height:size}}>
+    <View style={{ width:size, height:size, justifyContent:'center'}}>
       { loadingImage && <ActivityIndicator style={{alignSelf:'center', position:'absolute'}} /> }
-      <Image source={{uri: URL}} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: '100%'}} onLoadStart={() => setLoadingImage(true) } onLoadEnd={() => setLoadingImage(false)} />
+      <Image source={{uri: URL}} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100}} onLoadStart={() => setLoadingImage(true) } onLoadEnd={() => setLoadingImage(false)} />
     </View>
   )
 }
@@ -183,7 +187,7 @@ export const TextField = ({handlePress, setContent, content}) => {
   )
 }
 
-export const PopupMenu = ({handlePress}) => {
+/*export const PopupMenu = ({handlePress}) => {
 
   return (
     <TouchableOpacity style={{position:'absolute', top:32, right:6}} onPress={handlePress}>
@@ -195,7 +199,7 @@ export const PopupMenu = ({handlePress}) => {
       </View>
     </TouchableOpacity>
 )
-}
+}*/
 
 export const DeletePostModal = ({modalVisible ,handleClose, handleDelete}) => {
 
@@ -228,6 +232,24 @@ export const PopupAlert = ({display, text}) => {
           entering={SlideInDown.duration(600)}
           exiting={SlideOutDown.duration(600)}  
           style={{position:'absolute', bottom:24, alignSelf:'center', backgroundColor:COLORS.popupAlert, padding:10, paddingHorizontal:16, borderRadius:10, width:'80%'}}
+        >
+          <Text style={{color:COLORS.white, fontSize:17, alignSelf:'center'}}>{text}</Text>
+        </Animated.View>
+      }
+    </View>
+  )
+}
+
+export const Notification = ({display, text}) => {
+  const screenHeigth = Dimensions.get('screen').height
+
+  return (
+    <View>
+      { display &&
+        <Animated.View
+          entering={SlideInUp.duration(600)}
+          exiting={SlideOutUp.duration(600)}  
+          style={{position:'absolute', bottom:screenHeigth-90, alignSelf:'center', backgroundColor:COLORS.popupAlert, padding:10, paddingHorizontal:16, borderRadius:10, width:'80%'}}
         >
           <Text style={{color:COLORS.white, fontSize:17, alignSelf:'center'}}>{text}</Text>
         </Animated.View>

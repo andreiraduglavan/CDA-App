@@ -125,7 +125,7 @@ export const addPost = ( userID, name, username, content, images, event, eventFi
         await uploadImage(image).then((result) => imgURLs.push(result)).catch((error) => reject(error))
       }
       
-      const fields = {userID:userID, name:name, username:username, content:content, imgURLs:imgURLs, event:event, createdAt: serverTimestamp(), comments:[], likingUsers: [], likes: 0, ...eventFields}
+      const fields = {userID:userID, name:name, username:username, profileImgURL, content:content, imgURLs:imgURLs, event:event, createdAt: serverTimestamp(), comments:[], likingUsers: [], likes: 0, ...eventFields}
       await addDoc(postsRef, fields).then((response) => resolve({...fields, id:response.id})).catch((error) => reject(error))
     }
   })

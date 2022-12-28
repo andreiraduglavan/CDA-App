@@ -1,9 +1,10 @@
-import { collection, getDocs, where, orderBy, query, serverTimestamp, onSnapshot, doc, endAt, endBefore, limit } from 'firebase/firestore'
+import { collection, getDocs, where, orderBy, query, serverTimestamp, onSnapshot, doc, limit } from 'firebase/firestore'
 import { useState, useEffect, useRef } from 'react'
-import { View, Text, SafeAreaView, FlatList, Dimensions, KeyboardAvoidingView, NativeModules } from 'react-native'
+import { View, Text, SafeAreaView, FlatList, Dimensions, KeyboardAvoidingView, NativeModules, ActivityIndicator, Platform } from 'react-native'
 
-import { BackButton, Icon, Message, TextField } from '../components'
+import { BackButton, Icon, Message, SafeViewAndroid, TextField } from '../components'
 import { COLORS } from '../constants'
+import { useStateContext } from '../context/StateContext'
 import { createDoc, updateDocu } from '../firebase'
 import { db } from '../firebase/firebaseApp'
 import { joinIDs } from '../utils'
@@ -19,13 +20,17 @@ const ConversationHeader = ({participant}) => (
 
 const Conversation = ({ route, navigation }) => {
   const { StatusBarManager } = NativeModules
-  const [sbHeight, setsbHeight] = useState(0)
-  StatusBarManager.getHeight((statusBarHeight)=>{
-    setsbHeight(Number(statusBarHeight.height))
-  })
+  const [sbHeight, setsbHeight] = useState(12)
+  if(Platform.OS === "ios") {
+    StatusBarManager.getHeight((statusBarHeight)=>{
+      setsbHeight(Number(statusBarHeight.height))
+    })
+  }
+
   const flatlistRef = useRef()
-  const screenHeigth = Dimensions.get('screen').height
+  const screenHeigth = Dimensions.get('window').height
   var { participant, conversationID, currentUserID } = route.params
+  const { currentUser } = useStateContext()
   
   if(!conversationID) {
     conversationID = joinIDs(participant.id, currentUserID)
@@ -43,7 +48,7 @@ const Conversation = ({ route, navigation }) => {
     const newMessages = newMessagesSnap.docs.map((doc)=> ({...doc.data(), id:doc.id}))
     setMessages(newMessages)
   }
-
+  
   useEffect(() => {
     fetchInitialData()
   }, [])
@@ -53,12 +58,11 @@ const Conversation = ({ route, navigation }) => {
     const newMessagesSnap = await getDocs(query(collection(db, 'messages'), where('conversationID', '==', conversationID), orderBy('createdAt', 'desc'), limit(1)))
     const newMessages = newMessagesSnap.docs.map((doc)=> ({...doc.data(), id:doc.id}))
     
-    if(newMessages.length!=0 && newMessages[0].id!=messages[0].id) {
+    if(newMessages.length!=0 && messages.length!=0 && newMessages[0].id!=messages[0].id) {
       setMessages([...newMessages,...messages])
     }   
   }
 
-  
   
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(collection(db, 'conversations'), conversationID), (docSnapshot) => {
@@ -77,6 +81,27 @@ const Conversation = ({ route, navigation }) => {
     }
   }, [lastUpdated])
   
+  const sendNotification = (pushToken, senderUsername, content) => {
+    const notification = {
+      to: pushToken,
+      sound: "default",
+      title: senderUsername,
+      body: content,
+      data: {screen: "Conversation", tab:"SearchStackNavigator", conversationID, participant:currentUser, content},
+    };
+
+    fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Accept-encoding": "gzip, deflate",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(notification),
+    }).then( (response) => {
+      return response;
+    });
+  }
 
   const sendMessage = async (input) => {
     if(input.length!=0) {
@@ -88,17 +113,17 @@ const Conversation = ({ route, navigation }) => {
         flatlistRef.current.scrollToOffset({ animated: true, offset: 0 })
         
         if(newConversation) {
-          createDoc('conversations', {lastMessage:{content:input, sender:currentUserID},lastUpdated:serverTimestamp(),participants:[currentUserID, participant.id]}, conversationID)
+          createDoc('conversations', {lastMessage:{content:input, sender:currentUserID, senderUsername: currentUser.username},lastUpdated:serverTimestamp(),participants:[currentUserID, participant.id], unseen:true}, conversationID)
           .then(() => setNewConversation(false))
         }
-        else { updateDocu('conversations', conversationID, {lastMessage:{content:input, sender:currentUserID},lastUpdated:serverTimestamp()} ) }
-      })
+        else { updateDocu('conversations', conversationID, {lastMessage:{content:input, sender:currentUserID, senderUsername: currentUser.username},lastUpdated:serverTimestamp(), unseen:true} ) }
+      }).then(() => participant.pushTokens && participant.pushTokens.forEach(pushToken => sendNotification(pushToken, currentUser.username, input)) )
     }
 
   }
   
   return (
-    <SafeAreaView>
+    <SafeAreaView style={SafeViewAndroid.AndroidSafeArea}>
       <KeyboardAvoidingView style={{height:screenHeigth-sbHeight-12}} behavior={Platform.OS === "ios" ? "padding" : "height"}>
         <View style={{padding:12, flexDirection:'row', alignItems: 'center', paddingBottom:4, height: 60}}>
           <BackButton size={28}/>
@@ -115,7 +140,8 @@ const Conversation = ({ route, navigation }) => {
           keyExtractor={(item) => item.id}
           ref={flatlistRef}
           inverted={true}
-          ListFooterComponent={() => <ConversationHeader participant={participant} />}
+          ListFooterComponent={() => messages.length!=0 ? <ConversationHeader participant={participant} /> : <View style={{justifyContent:'center', minHeight:500}}><ActivityIndicator /></View> }
+          contentContainerStyle={{paddingTop:6}}
         />
 
         <TextField handlePress={sendMessage}/>

@@ -5,7 +5,7 @@ import { arrayRemove, arrayUnion, collection, getDocs, increment, limit, orderBy
 import { useNavigation } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
 
-import {  FollowButton, ScreenHeader, FeedItem, ItemSeparator, DM2Button, Bio, FeedFooter } from '../components'
+import {  FollowButton, ScreenHeader, FeedItem, ItemSeparator, DM2Button, Bio, FeedFooter, SafeViewAndroid } from '../components'
 import { COLORS } from '../constants'
 import { deleteImage, getCurrentUser, getDocData, getPosts, updateDocu, uploadImage } from '../firebase'
 import { joinIDs } from '../utils'
@@ -34,7 +34,7 @@ const ProfileHeader = ({ data, self }) => {
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 0.2,
+      quality: 0.1,
     })
 
     if (!result.cancelled) {
@@ -67,6 +67,7 @@ const ProfileHeader = ({ data, self }) => {
                   var currentUserID = currentUser.uid
                   var conversationID = joinIDs(currentUserID, participant.id)
                   navigation.navigate('Conversation', { participant, conversationID, currentUserID })
+                  
                 } }
               />
             }
@@ -135,7 +136,7 @@ const Profile = ({route, navigate}) => {
   }, [])
   
   return (
-    <SafeAreaView style={{flex:1}}>
+    <SafeAreaView style={SafeViewAndroid.AndroidSafeArea}>
       { !self ? <ScreenHeader screenName={username} /> : <View style={{paddingTop:24}}></View>}
 
       <FlatList 

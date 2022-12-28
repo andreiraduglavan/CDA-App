@@ -1,18 +1,18 @@
-import { View, FlatList, SafeAreaView } from 'react-native'
+import { View, FlatList, SafeAreaView, ActivityIndicator } from 'react-native'
 import { useState, useEffect } from 'react'
 import { collection, getDocs, limit, orderBy, query, startAfter } from 'firebase/firestore'
 import { db } from '../firebase/firebaseApp'
 
-import { Header, ItemSeparator, FeedFooter, FeedItem, PopupAlert } from '../components'
+import { Header, ItemSeparator, FeedFooter, FeedItem, SafeViewAndroid } from '../components'
 import { useStateContext } from '../context/StateContext'
 
 const Home = () => { 
-  const { displayPopUpAlert, IDToBeRemoved, popUpText, newPost } = useStateContext()
+  const { IDToBeRemoved, newPost } = useStateContext()
   const [posts, setPosts] = useState([])
   const postsRef = collection(db, 'posts')
   const [isLoading, setIsLoading] = useState(false)
   const [endReached, setEndReached] = useState(false)
-  
+
   const fetchInitialData = async () => {
     const newPostsSnap = await getDocs(query(postsRef, orderBy('createdAt', 'desc'), limit(7)))
     const newPosts = newPostsSnap.docs.map((doc)=> ({...doc.data(), id:doc.id}))
@@ -33,7 +33,7 @@ const Home = () => {
   }
 
   useEffect(() => {
-  
+    
     fetchInitialData()
   
   }, [])
@@ -50,7 +50,7 @@ const Home = () => {
   }, [newPost])
   
   return (
-    <SafeAreaView style={{flex:1}}>
+    <SafeAreaView style={SafeViewAndroid.AndroidSafeArea}>
       <View style={{flex:1}}>
         <Header />
         <FlatList 
@@ -65,7 +65,13 @@ const Home = () => {
           onEndReached={fetchMoreData}
         />
       </View>
-      <PopupAlert display={displayPopUpAlert} text={popUpText}/> 
+
+      { posts.length == 0 &&
+        <View style={{ minHeight:500, justifyContent:'center' }}>
+          <ActivityIndicator />
+        </View>
+      }
+
     </SafeAreaView>
   )
 }

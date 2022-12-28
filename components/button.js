@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { useNavigation } from '@react-navigation/native'
 
 import { COLORS } from '../constants'
+import { useStateContext } from '../context/StateContext'
 
 export const HeartButton = ({handlePress, size=20, color=COLORS.third}) => {
   return (
@@ -32,7 +33,7 @@ export const DM2Button = ({handlePress, size=20}) => {
             top: 0,
             bottom:0,
             height: 36,
-            borderRadius:'100%'
+            borderRadius:100
           }}
         />
         <Entypo name="paper-plane" size={size} color='white' />
@@ -74,13 +75,15 @@ export const DotsButton = ({handlePress, size=18, color=COLORS.gray}) => {
   )
 }
 
-export const DMButton = ({handlePress ,size=20, color=COLORS.third}) => {
+export const DMButton = ({handlePress ,size=20, color=COLORS.third, inHeader=false}) => {
+  const { unseenMessages } = useStateContext()
   return (
     <TouchableOpacity
       style={{}}
       onPress={handlePress}
     >
       <Entypo name="paper-plane" size={size} color={color} />
+      {unseenMessages && inHeader && <View style={{position:'absolute', backgroundColor:'red', right:-5, borderRadius:100, height:10, width:10}}></View>}
     </TouchableOpacity>
   )
 }
@@ -132,18 +135,16 @@ export const BackButton = ({handlePress, size=20, color=COLORS.gray}) => {
   )
 }
 
-export const JoinButton = ({handlePress}) => {
+export const JoinButton = ({handlePress, text='APLICĂ'}) => {
   return (
     <TouchableOpacity
       style={{}}
       onPress={handlePress}
     >
-      <View style={{padding:8, paddingHorizontal:32, alignContent:'center', justifyContent: 'center', borderRadius: 24, borderColor: COLORS.white, borderWidth: 0, shadowColor: '#171717',
-        shadowOffset: {width: 2, height: 4},
-        shadowOpacity: 0.5,
-        shadowRadius: 4}}
+      <View style={{padding:8, paddingHorizontal:32, alignItems:'center', justifyContent: 'center', borderRadius:24, borderColor: COLORS.white, borderWidth: 0, shadowColor: '#171717',
+        }}
       >
-        <LinearGradient start={[0, 1]} end={[0.7, 0]}
+        <LinearGradient start={[0, 1]} end={[0.8, 0]}
           colors={[COLORS.violet, COLORS.blue]}
           style={{
             position: 'absolute',
@@ -151,11 +152,10 @@ export const JoinButton = ({handlePress}) => {
             right: 0,
             top: 0,
             bottom:0,
-            height: 34,
             borderRadius:24
           }}
         />
-        <Text style={{fontSize: 16, color:COLORS.white}}>APLICĂ</Text>
+        <Text style={{fontSize: 16, color:COLORS.white, alignSelf:'center'}}>{text}</Text>
       </View>
     </TouchableOpacity>
   )
@@ -163,7 +163,7 @@ export const JoinButton = ({handlePress}) => {
 
 export const FollowButton = ({handlePress, color=COLORS.gray, text}) => {
   return (
-    <TouchableOpacity style={{right:0, bottom:'25%', position:'absolute', padding:4, paddingHorizontal:24, borderTopStartRadius:'100%', borderBottomLeftRadius:'100%'}}
+    <TouchableOpacity style={{right:0, bottom:'25%', position:'absolute', padding:4, paddingHorizontal:24, borderTopLeftRadius:100, borderBottomLeftRadius:100}}
       onPress={handlePress}
     >
       <LinearGradient start={[0, 1]} end={[0.7, 0]}
@@ -174,8 +174,7 @@ export const FollowButton = ({handlePress, color=COLORS.gray, text}) => {
             right: 0,
             top: 0,
             bottom:0,
-            height: 32,
-            borderTopStartRadius:'100%', borderBottomLeftRadius:'100%'
+            borderTopLeftRadius:100, borderBottomLeftRadius:100
           }}
         />
       <Text style={{color:COLORS.white, fontSize:18}}>{text}</Text>

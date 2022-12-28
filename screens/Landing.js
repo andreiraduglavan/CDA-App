@@ -2,7 +2,7 @@ import { View, Text, SafeAreaView, TextInput } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { useState } from 'react'
 
-import { GoogleLogin, LoginButton, Logo2 } from '../components'
+import { GoogleLogin, LoginButton, Logo2, SafeViewAndroid } from '../components'
 import { LogIn } from '../firebase'
 import { COLORS } from '../constants'
 import { useStateContext } from '../context/StateContext'
@@ -17,7 +17,7 @@ const Landing = () => {
   const [errorMessage, setErrorMessage] = useState('')
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={SafeViewAndroid.AndroidSafeArea}> 
       <View style={{ alignItems:'center', marginTop:'20%' }}>
         <Logo2 height={80} width={234}/>
         <Text style={{fontSize:24, fontWeight:'300', marginBottom:32}}>Te conectăm cu ce contează</Text>
@@ -28,8 +28,8 @@ const Landing = () => {
           <View style={{height:32}}><Text style={{color:'white'}}>peco</Text></View>
         }
         
-        <TextInput placeholder='email' style={{ width:'60%',borderWidth:1, borderColor:COLORS.gray, padding:12, marginHorizontal:12, borderRadius:4, marginBottom:8}} onChangeText={text => setEmail(text)} />
-        <TextInput placeholder='parola' secureTextEntry={true} style={{ width:'60%',borderWidth:1, borderColor:COLORS.gray, padding:12, marginHorizontal:12, borderRadius:4, marginBottom:16}} onChangeText={text => setPassword(text)} />
+        <TextInput placeholder='email' style={{ width:'60%',borderWidth:1, borderColor:COLORS.gray, padding:12, marginHorizontal:12, borderRadius:4, marginBottom:8}} onChangeText={text => setEmail(text)} autoCapitalize={'none'} />
+        <TextInput placeholder='parola' secureTextEntry={true} style={{ width:'60%',borderWidth:1, borderColor:COLORS.gray, padding:12, marginHorizontal:12, borderRadius:4, marginBottom:16}} onChangeText={text => setPassword(text)} autoCapitalize={'none'} />
         
         <LoginButton handlePress={async () => {
           LogIn(email, password)

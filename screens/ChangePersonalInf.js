@@ -1,11 +1,11 @@
 import { View, Text, SafeAreaView, TextInput } from 'react-native'
 
-import { ScreenHeader } from '../components'
+import { SafeViewAndroid, ScreenHeader } from '../components'
 import { COLORS } from '../constants'
 
 const ChangePersonalInf = () => {
   return (
-    <SafeAreaView>
+    <SafeAreaView style={SafeViewAndroid.AndroidSafeArea}>
       <ScreenHeader screenName={'Informații Personale'} />
 
       <View style={{margin:16, flexDirection:'row', alignItems:'center'}}>

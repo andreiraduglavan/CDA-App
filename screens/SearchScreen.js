@@ -2,7 +2,7 @@ import { View, Text, SafeAreaView, TouchableOpacity, TouchableHighlight, TextInp
 import { useState } from 'react'
 import { collection, query, where, getDocs } from 'firebase/firestore'
 import { db } from '../firebase/firebaseApp'
-import { Icon } from '../components'
+import { Icon, SafeViewAndroid } from '../components'
 import { COLORS } from '../constants'
 import { AntDesign} from '@expo/vector-icons'
 
@@ -41,7 +41,7 @@ const SearchScreen = ({ route, navigation }) => {
   }
 
   return (
-    <SafeAreaView style={{flex:1, justifyContent:'space-between'}}>
+    <SafeAreaView style={{ justifyContent:'space-between', ...SafeViewAndroid.AndroidSafeArea}}>
       <View>
         <Search handlepress={fetchData} input={input} setInput={setInput} />
         { userData ?

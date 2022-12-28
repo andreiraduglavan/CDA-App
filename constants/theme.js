@@ -1,6 +1,6 @@
 export const COLORS = {
-  violet: "#c5b2e9",
-  blue: "#aac4fa",
+  violet: "#c5b2e9", //"#c5b2e9"
+  blue: "#aac4fa", //"#aac4fa"
   third: "#4d626c",
 
   white: "#FFF",

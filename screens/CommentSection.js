@@ -2,20 +2,22 @@ import { arrayUnion } from 'firebase/firestore'
 import { View, SafeAreaView, ScrollView, Dimensions, KeyboardAvoidingView, NativeModules } from 'react-native'
 import { useState } from 'react'
 
-import { Comment, ScreenHeader, TextField } from '../components'
+import { Comment, SafeViewAndroid, ScreenHeader, TextField } from '../components'
 import { getCurrentUser, updateDocu, getDocData } from '../firebase'
 import { useStateContext } from '../context/StateContext'
 
 const CommentSection = ({route, navigation}) => {
   const { StatusBarManager } = NativeModules
-  const [sbHeight, setsbHeight] = useState(0)
-  StatusBarManager.getHeight((statusBarHeight)=>{
-    setsbHeight(Number(statusBarHeight.height))
-  })
+  const [sbHeight, setsbHeight] = useState(12)
+  if(Platform.OS === "ios") {
+    StatusBarManager.getHeight((statusBarHeight)=>{
+      setsbHeight(Number(statusBarHeight.height))
+    })
+  }
   
   const { data } = route.params
   const [comments, setComments] = useState(data.comments)
-  const screenHeigth = Dimensions.get('screen').height
+  const screenHeigth = Dimensions.get('window').height
   
   const { setUpdateComments } = useStateContext()
   const currentUser = getCurrentUser()
@@ -34,7 +36,7 @@ const CommentSection = ({route, navigation}) => {
 
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={SafeViewAndroid.AndroidSafeArea}>
       <ScreenHeader screenName={'Comentarii'} />
 
       <KeyboardAvoidingView style={{height:screenHeigth-sbHeight-88}} behavior={Platform.OS === "ios" ? "padding" : "height"}>

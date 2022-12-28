@@ -12,5 +12,8 @@ import SearchScreen from "./SearchScreen"
 import SignUpScreen from "./SignUpScreen"
 import EventsFeed from "./EventsFeed"
 import Followers from "./Followers"
+import EventSearch from "./EventSearch"
+import EventCard from "../components/EventCard"
+import Map from "./Map"
 
-export { Details, Home, Followers, CommentSection, EventsFeed, Landing, Profile, DM, Conversation, AddPost, Settings, ChangePersonalInf, SearchScreen, SignUpScreen }
+export { Details, Home, Map, EventCard, Followers, EventSearch, CommentSection, EventsFeed, Landing, Profile, DM, Conversation, AddPost, Settings, ChangePersonalInf, SearchScreen, SignUpScreen }
